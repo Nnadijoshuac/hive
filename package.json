@@ -12,6 +12,7 @@
     "@noble/curves": "^1.9.7",
     "@noble/hashes": "^1.8.0",
     "@phala/dcap-qvl": "^0.7.0",
+    "@vercel/blob": "2.8.2",
     "class-variance-authority": "^0.7.1",
     "cn": "^0.5.2",
     "gsap": "^3.15.1",

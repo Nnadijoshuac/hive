@@ -3,7 +3,9 @@
 //   submit    each AI's own account submits a hash of its answer, tied to the machine that signed it
 //   review    the reviewer posts the scores; the contract pays answers at 70 or more and refunds the rest
 //
-// Keys are read from NEAR's standard credentials folder (~/.near-credentials/testnet), outside the project.
+// Keys come from environment variables on a host such as Vercel (NEAR_KEY_HIVE_DEV_TESTNET for
+// hive-dev.testnet, and so on), or locally from NEAR's credentials folder (~/.near-credentials/testnet).
+// Neither is ever in the repo.
 import { createHash } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
 import { homedir } from 'node:os';
@@ -26,8 +28,13 @@ export interface ChainRecord { jobId: number; escrowNear: string; txs: { step: s
 
 const sha256 = (text: string) => createHash('sha256').update(text).digest('hex');
 
-/** An account that can sign, from <id>.json or the newest key file in <id>/ (where added keys are saved). */
+/** The environment variable holding an account's key: hive-dev.testnet becomes NEAR_KEY_HIVE_DEV_TESTNET. */
+export const keyVar = (accountId: string) => `NEAR_KEY_${accountId.toUpperCase().replace(/[^A-Z0-9]/g, '_')}`;
+
+/** An account that can sign: its key from the environment, else <id>.json or the newest key file in <id>/. */
 async function signer(accountId: string) {
+  const fromEnv = process.env[keyVar(accountId)];
+  if (fromEnv) return new Account(accountId, provider, fromEnv as KeyPairString);
   const read = async (file: string) => JSON.parse(await readFile(file, 'utf8')) as { private_key: KeyPairString };
   const dir = path.join(CREDENTIALS, accountId);
   const files = await readdir(dir).catch(() => [] as string[]);

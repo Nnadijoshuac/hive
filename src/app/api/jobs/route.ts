@@ -8,6 +8,9 @@ import { runJob } from '@/lib/swarm/engine';
 
 const MAX_BRIEF = 2000;
 
+// A job takes about a minute and a half end to end, including settling on NEAR.
+export const maxDuration = 300;
+
 export async function POST(request: Request) {
   await connection();
   const apiKey = process.env.NEAR_AI_CLOUD_API_KEY;

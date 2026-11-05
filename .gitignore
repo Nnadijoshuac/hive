@@ -43,3 +43,6 @@ target/
 
 # finished job receipts
 /.data/
+
+.vercel
+.env*
