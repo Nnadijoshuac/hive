@@ -24,12 +24,15 @@ const RECEIPT = {
   refund: '$0.01',
 };
 
-function Mark() {
+/** A step number inside one honeycomb cell, the same shape as the hive behind the console. */
+function StepCell({ n }: { n: number }) {
   return (
-    <svg viewBox="0 0 24 24" className="size-6" aria-hidden>
-      <path d="M12 2 20.66 7v10L12 22 3.34 17V7Z" className="fill-lemon" />
-      <path d="M12 7.5 16.33 10v5L12 17.5 7.67 15v-5Z" className="fill-neutral-950" />
-    </svg>
+    <span className="relative inline-flex size-11 items-center justify-center">
+      <svg viewBox="0 0 24 24" className="absolute inset-0 size-full" aria-hidden>
+        <path d="M12 1.5 21.1 6.75v10.5L12 22.5 2.9 17.25V6.75Z" className="fill-lemon" />
+      </svg>
+      <span className="relative font-mono text-sm font-medium text-neutral-950">{n}</span>
+    </span>
   );
 }
 
@@ -37,9 +40,8 @@ export default function Home() {
   return (
     <>
       <nav className="mx-auto flex h-20 max-w-[1280px] items-center justify-between px-6 md:px-10">
-        <a href="#" className="flex items-center gap-2.5 text-xl font-semibold tracking-[-0.03em]"><Mark />Hive</a>
+        <a href="#" className="text-xl font-semibold tracking-[-0.03em]">Hive</a>
         <div className="flex items-center gap-6 text-[15px] text-neutral-600">
-          <a href="#how" className="hidden hover:text-neutral-950 sm:inline">How it works</a>
           <a href={REPO} target="_blank" rel="noopener" className="hidden hover:text-neutral-950 sm:inline">GitHub</a>
           <a href="#try" className="rounded-lg bg-lemon px-4 py-2 font-medium text-neutral-950 hover:brightness-95">Try it</a>
         </div>
@@ -56,14 +58,14 @@ export default function Home() {
         </section>
 
         <section id="how" className="mx-auto max-w-[1280px] border-t border-neutral-100 px-6 py-28 md:px-10">
-          <p className="label-mono mb-12 text-neutral-400">How it works</p>
-          <ol className="grid gap-12 md:grid-cols-4 md:gap-10">
+          <p className="label-mono mb-10 text-neutral-400">How it works</p>
+          {/* Four big lines. Read the titles alone and you have the whole product. */}
+          <ol className="border-t border-neutral-200">
             {STEPS.map(([title, body], i) => (
-              <li key={title} className="relative">
-                <span className="label-mono mb-5 inline-flex size-8 items-center justify-center rounded-full bg-lemon text-neutral-950">{i + 1}</span>
-                {i < STEPS.length - 1 && <span aria-hidden className="absolute top-4 left-12 hidden h-px w-[calc(100%-2rem)] bg-neutral-200 md:block" />}
-                <p className="mb-2 text-xl font-semibold tracking-tight">{title}</p>
-                <p className="leading-relaxed text-neutral-500">{body}</p>
+              <li key={title} className="grid items-center gap-3 border-b border-neutral-200 py-9 md:grid-cols-12 md:gap-10">
+                <span className="md:col-span-1"><StepCell n={i + 1} /></span>
+                <p className="text-[clamp(1.75rem,3.4vw,2.75rem)] font-semibold leading-tight tracking-[-0.03em] md:col-span-6">{title}</p>
+                <p className="max-w-[44ch] leading-relaxed text-neutral-500 md:col-span-5">{body}</p>
               </li>
             ))}
           </ol>
@@ -118,7 +120,7 @@ export default function Home() {
 
       <footer className="border-t border-neutral-100">
         <div className="mx-auto flex max-w-[1280px] flex-wrap items-center justify-between gap-4 px-6 py-10 text-sm text-neutral-500 md:px-10">
-          <span className="flex items-center gap-2 font-medium text-neutral-950"><Mark />Hive</span>
+          <span className="font-medium text-neutral-950">Hive</span>
           <span>The AIs run on NEAR AI. Payments settle on NEAR.</span>
           <a href={REPO} target="_blank" rel="noopener" className="hover:text-neutral-950">GitHub</a>
         </div>

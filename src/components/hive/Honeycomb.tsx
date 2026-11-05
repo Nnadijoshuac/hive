@@ -1,53 +1,74 @@
-// A quiet honeycomb of dots behind the product: the hive, drawn the way Guild draws its halftone fields.
-// A few cells in the side margins light up in lemon and pulse slowly, like workers moving through it.
+// The honeycomb behind the live console. Built to look exact, so nothing in it reads as an accident:
+// - the grid starts at the centre of the section, so left and right are mirror images;
+// - every edge is drawn once, in one path, so no line is doubled and darker where two cells meet;
+// - the lemon cells sit exactly on grid cells;
+// - it fades out evenly towards every edge. It does not move.
 
-const R = 14; // hexagon radius in px
-const W = Math.sqrt(3) * R;
-const H = 1.5 * R;
+const W = 34; // cell width in px; whole pixels keep the vertical edges sharp
+const R = W / Math.sqrt(3); // radius of a regular, pointy-top hexagon that is W wide
+const ROW = 1.5 * R; // distance between rows
 
-// Lit cells as [column, row]. Positive columns count from the left edge, negative ones from the right,
-// so the cells stay in the margins beside the console at any screen width.
-const LIT: [number, number][] = [[2, 3], [3, 4], [5, 9], [1, 15], [3, 22], [-3, 2], [-2, 7], [-5, 8], [-2, 16], [-4, 21]];
+const COLS = 34; // cells each side of centre, enough for wide screens
+const ROWS = 20; // rows above and below centre
 
-function hexPoints(cx: number, cy: number, r: number) {
-  return Array.from({ length: 6 }, (_, i) => {
-    const a = (Math.PI / 3) * i + Math.PI / 6;
-    return `${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`;
+/** Centre of the cell at (col, row). Odd rows shift half a cell, which keeps the grid symmetric about x = 0. */
+const centre = (col: number, row: number): [number, number] => [col * W + (Math.abs(row) % 2 ? W / 2 : 0), row * ROW];
+
+const f = (n: number) => n.toFixed(2);
+
+/**
+ * Each hexagon draws its left edge and its two top edges. Its other three edges belong to the neighbours
+ * on its right and below, so across the grid every edge is drawn exactly once.
+ */
+function gridPath() {
+  let d = '';
+  for (let row = -ROWS; row <= ROWS; row++) {
+    for (let col = -COLS; col <= COLS; col++) {
+      const [x, y] = centre(col, row);
+      d += `M${f(x - W / 2)} ${f(y + R / 2)}V${f(y - R / 2)}L${f(x)} ${f(y - R)}L${f(x + W / 2)} ${f(y - R / 2)}`;
+    }
+  }
+  return d;
+}
+
+function hexPoints([x, y]: [number, number]) {
+  return Array.from({ length: 6 }, (_, k) => {
+    const a = (Math.PI / 3) * k - Math.PI / 2;
+    return `${f(x + R * Math.cos(a))},${f(y + R * Math.sin(a))}`;
   }).join(' ');
 }
 
-function Cell({ c, r, i }: { c: number; r: number; i: number }) {
-  return (
-    <polygon points={hexPoints(c * W + (r % 2 ? W / 2 : 0), r * H, R - 2)} className="fill-lemon">
-      <animate attributeName="opacity" values="0.35;1;0.35" dur={`${3 + (i % 3)}s`} begin={`${i * 0.4}s`} repeatCount="indefinite" />
-    </polygon>
-  );
-}
+// Three lit cells as [col, row]: one on the left, two on the right, at unrelated rows so they read as
+// scattered. All sit in the side margins, 630 to 730px from centre and near the console's middle, so they stay
+// clear of the console (at most 1200px wide) even when it grows during a job. One soft strength for all.
+const LIT_OPACITY = 0.55;
+const LIT = ([[-21, -3], [20, 2], [21, -6]] as const).map(([col, row]) => centre(col, row));
+
+const PATH = gridPath();
 
 export function Honeycomb() {
   return (
     <svg aria-hidden className="pointer-events-none absolute inset-0 hidden h-full w-full md:block">
       <defs>
-        <pattern id="hive-dots" width={W} height={H * 2} patternUnits="userSpaceOnUse">
-          <circle cx={W / 2} cy={H / 2} r={1.3} className="fill-neutral-300" />
-          <circle cx={0} cy={H * 1.5} r={1.3} className="fill-neutral-300" />
-          <circle cx={W} cy={H * 1.5} r={1.3} className="fill-neutral-300" />
-        </pattern>
-        <linearGradient id="hive-fade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="white" stopOpacity="0" />
-          <stop offset="0.15" stopColor="white" stopOpacity="1" />
-          <stop offset="0.8" stopColor="white" stopOpacity="1" />
+        <radialGradient id="hive-fade">
+          <stop offset="0" stopColor="white" />
+          <stop offset="0.55" stopColor="white" />
           <stop offset="1" stopColor="white" stopOpacity="0" />
-        </linearGradient>
+        </radialGradient>
         <mask id="hive-mask">
           <rect width="100%" height="100%" fill="url(#hive-fade)" />
         </mask>
       </defs>
+      {/* Nested svgs at the centre make (0, 0) the middle of the section. The lit cells sit outside the
+          fade so they keep their colour near the edges; the grid lines are drawn over them. */}
+      <svg x="50%" y="50%" overflow="visible">
+        {LIT.map((at, i) => (
+          <polygon key={i} points={hexPoints(at)} className="fill-lemon" opacity={LIT_OPACITY} />
+        ))}
+      </svg>
       <g mask="url(#hive-mask)">
-        <rect width="100%" height="100%" fill="url(#hive-dots)" />
-        {LIT.filter(([c]) => c > 0).map(([c, r], i) => <Cell key={i} c={c} r={r} i={i} />)}
-        <svg x="100%" overflow="visible">
-          {LIT.filter(([c]) => c < 0).map(([c, r], i) => <Cell key={i} c={c} r={r} i={i + 5} />)}
+        <svg x="50%" y="50%" overflow="visible">
+          <path d={PATH} fill="none" className="stroke-neutral-200" strokeWidth={1} strokeLinejoin="round" />
         </svg>
       </g>
     </svg>
