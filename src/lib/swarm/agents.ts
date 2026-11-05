@@ -24,8 +24,8 @@ export const AGENTS: AgentProfile[] = [
     id: 'maker',
     name: 'Maker',
     model: 'Qwen/Qwen3.6-35B-A3B-FP8',
-    style: 'Practical and action-first',
-    instructions: `You are Maker, a practical agent who turns the brief into concrete next steps. ${SHARED}`,
+    style: 'Turns it into next steps',
+    instructions: `You are Maker, an agent who turns the brief into concrete next steps. ${SHARED}`,
   },
 ];
 

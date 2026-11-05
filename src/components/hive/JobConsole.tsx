@@ -8,7 +8,7 @@ import type { Entry, JobResult } from '@/lib/swarm/engine';
 import { formatUsd, plainText } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
-const EXAMPLE = 'I run a small online shop selling handmade candles. List 5 practical ways to cut my monthly software costs, with a rough saving for each.';
+const EXAMPLE = 'I run a small online shop selling handmade candles. List 5 ways to cut my monthly software costs, with a rough saving for each.';
 
 type Phase = 'idle' | 'running' | 'done' | 'error';
 
@@ -61,7 +61,7 @@ export function JobConsole() {
           </label>
           <button onClick={run} disabled={phase === 'running' || !brief.trim()}
             className="h-[50px] rounded-lg bg-lemon px-6 font-medium text-neutral-950 transition hover:brightness-95 disabled:opacity-50">
-            {phase === 'running' ? 'Agents working…' : 'Post task'}
+            {phase === 'running' ? 'Working…' : 'Post task'}
           </button>
         </div>
       </div>
@@ -75,12 +75,12 @@ export function JobConsole() {
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 px-6 py-4 text-sm text-neutral-500 md:px-8">
         {phase === 'error' && <span>Something went wrong: {error}</span>}
-        {phase === 'idle' && <span>Three agents on three private models. An independent reviewer scores every answer.</span>}
-        {phase === 'running' && <span>Your task was stripped of personal details. Agents are working inside verified hardware…</span>}
+        {phase === 'idle' && <span>Takes about a minute. The example task is ready to go.</span>}
+        {phase === 'running' && <span>Personal details removed. Three AIs are working on it now…</span>}
         {phase === 'done' && result && (
           <>
             <span>Paid <b className="text-neutral-950">{formatUsd(result.budget - result.refunded)}</b> for work that passed{result.refunded > 0 && <> · refunded {formatUsd(result.refunded)}</>}</span>
-            <span className="label-mono text-neutral-400">Every answer and verdict signed by attested hardware</span>
+            <span className="label-mono text-neutral-400">Each answer and grade is signed</span>
           </>
         )}
       </div>
@@ -114,7 +114,7 @@ function AgentColumn({ name, style, model, phase, entry, first }: {
           <p className="mb-5 line-clamp-6 whitespace-pre-line text-[15px] leading-relaxed text-neutral-700">{plainText(entry.answer) || entry.error}</p>
           <div className="mt-auto">
             <div className="mb-2 flex items-center justify-between text-sm">
-              <span className="text-neutral-500">Reviewer score</span>
+              <span className="text-neutral-500">Grade</span>
               <span className="font-medium tabular-nums">{entry.review.score}/100</span>
             </div>
             <div className="mb-3 h-1.5 overflow-hidden rounded-full bg-neutral-100">
