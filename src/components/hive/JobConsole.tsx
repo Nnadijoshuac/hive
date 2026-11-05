@@ -93,7 +93,7 @@ function AgentColumn({ name, style, model, phase, entry, first }: {
 }) {
   const passed = entry?.review.passed;
   return (
-    <div className={cn('flex min-h-[340px] flex-col p-6 md:p-8', !first && 'border-t border-neutral-100 md:border-t-0 md:border-l')}>
+    <div className={cn('flex flex-col p-6 md:p-8', phase !== 'idle' && 'min-h-[340px]', !first && 'border-t border-neutral-100 md:border-t-0 md:border-l')}>
       <div className="mb-5 flex items-baseline justify-between gap-3">
         <div>
           <p className="text-lg font-semibold tracking-tight">{name}</p>
@@ -107,7 +107,13 @@ function AgentColumn({ name, style, model, phase, entry, first }: {
       </div>
 
       {phase === 'running' && <Working />}
-      {phase === 'idle' && <p className="label-mono text-neutral-300">Waiting for a task</p>}
+      {phase === 'idle' && (
+        <div>
+          <p className="label-mono text-neutral-400">{model}</p>
+          <div className="mt-6 h-1.5 rounded-full bg-neutral-100" />
+          <p className="mt-3 text-sm text-neutral-400">Its answer and grade show up here.</p>
+        </div>
+      )}
 
       {entry && (
         <motion.div initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} className="flex flex-1 flex-col">

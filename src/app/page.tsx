@@ -101,7 +101,7 @@ export default function Home() {
                 ))}
               </tbody>
             </table>
-            <p className="mt-4 text-sm text-neutral-500">Refunded to the poster: {RECEIPT.refund}</p>
+            <p className="mt-4 text-sm text-neutral-500">Refunded to you: {RECEIPT.refund}</p>
           </div>
         </section>
       </main>
