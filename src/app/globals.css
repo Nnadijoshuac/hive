@@ -145,21 +145,11 @@
   box-shadow: 0 0 0 1px rgb(0 0 0 / 0.06), 0 1px 2px rgb(0 0 0 / 0.04), 0 24px 64px -24px rgb(0 0 0 / 0.18);
 }
 
-/*
- * The hero's entrance (same approach as Draw, by the same author). Everything arrives slightly out of focus
- * and resolves, staggered in reading order: the claim, then the cards, then the line that threads them.
- * Keyframes declare `from` only, so each element lands on its own resting opacity and rotation.
- */
+/* The hero's entrance: each block arrives slightly out of focus and resolves, staggered in reading order. */
 @keyframes settle { from { opacity: 0; transform: translateY(20px) scale(0.985); filter: blur(9px); } }
-@keyframes fall { from { opacity: 0; transform: translateY(-26px) scale(0.965); filter: blur(7px); } }
-@keyframes thread { from { stroke-dashoffset: 1; } }
-@keyframes veil { from { opacity: 0; } }
 
 .settle { animation: settle 1000ms cubic-bezier(0.16, 1, 0.3, 1) both; }
-.fall { animation: fall 1100ms cubic-bezier(0.16, 1, 0.3, 1) both; }
-.thread { animation: thread 1500ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-.veil { animation: veil 400ms ease-out both; }
 
 @media (prefers-reduced-motion: reduce) {
-  .settle, .fall, .thread, .veil { animation: none; }
+  .settle { animation: none; }
 }

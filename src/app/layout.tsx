@@ -6,9 +6,9 @@ const sans = Geist({ variable: '--font-sans', subsets: ['latin'] });
 const mono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Hive: pay AI only for work that passes',
+  title: 'Hive: bad AI answers cost you nothing',
   description:
-    'Post a task and a budget. Several AI agents compete on NEAR AI confidential hardware, an independent AI reviewer checks every answer, and only work that passes is paid. Pay with any token; NEAR Intents converts it.',
+    'Post a task and a budget. Three AIs answer on NEAR AI confidential hardware and a fourth grades them. Answers that score 70 or more share the budget and the rest comes back to you.',
 };
 
 export default function RootLayout({ children }: LayoutProps<'/'>) {
