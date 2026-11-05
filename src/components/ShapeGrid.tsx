@@ -430,6 +430,9 @@ export default function ShapeGrid({
       spotVX: 0,
       spotVY: 0,
       spotPower: 0,
+      // Where the spot was last frame, in world space. NaN means "no trail yet" (just entered).
+      trailX: NaN,
+      trailY: NaN,
       lit: new Map<number, number>(),
       hues: new Map<number, number>(),
       cascades: [] as Cascade[],
@@ -507,29 +510,49 @@ export default function ShapeGrid({
           state.hues.delete(key);
         } else state.lit.set(key, next);
       }
-      if (state.spotPower < 0.01) return;
+      if (state.spotPower < 0.01) {
+        state.trailX = NaN;
+        return;
+      }
       const wx = state.spotX + state.offsetX;
       const wy = state.spotY + state.offsetY;
       const reach = Math.max(s.radius, 0.5) * s.cellSize;
-      const [hi, hj] = nearestCell(s, layout, wx, wy);
       const spanI = Math.ceil(reach / layout.stepX) + 2;
       const spanJ = Math.ceil(reach / layout.stepY) + 2;
       const hue = state.time * 120;
-      for (let i = hi - spanI; i <= hi + spanI; i++) {
-        for (let j = hj - spanJ; j <= hj + spanJ; j++) {
-          const [x, y] = centerOf(s.shape, layout, i, j);
-          const distance = Math.hypot(x - wx, y - wy);
-          let value = s.radius > 0 ? smoothstep(reach, reach * 0.15, distance) : 0;
-          if (i === hi && j === hj) value = Math.max(value, 1);
-          value *= state.spotPower;
-          if (value <= 0.004) continue;
-          const key = keyOf(i, j);
-          if (value > (state.lit.get(key) ?? 0)) {
-            state.lit.set(key, value);
-            state.hues.set(key, hue + ((x + y) / s.cellSize) * 12);
+
+      // Lights the cells around one point. `age` (0 to 1) dims points the spot passed earlier in this frame.
+      const stamp = (px: number, py: number, age: number) => {
+        const [hi, hj] = nearestCell(s, layout, px, py);
+        const fade = state.spotPower * Math.exp((-dt * age) / s.trail);
+        for (let i = hi - spanI; i <= hi + spanI; i++) {
+          for (let j = hj - spanJ; j <= hj + spanJ; j++) {
+            const [x, y] = centerOf(s.shape, layout, i, j);
+            const distance = Math.hypot(x - px, y - py);
+            let value = s.radius > 0 ? smoothstep(reach, reach * 0.15, distance) : 0;
+            if (i === hi && j === hj) value = Math.max(value, 1);
+            value *= fade;
+            if (value <= 0.004) continue;
+            const key = keyOf(i, j);
+            if (value > (state.lit.get(key) ?? 0)) {
+              state.lit.set(key, value);
+              state.hues.set(key, hue + ((x + y) / s.cellSize) * 12);
+            }
           }
         }
+      };
+
+      // A fast flick moves the spot many cells in one frame. Walk the straight line from last frame's
+      // position in half-cell steps so every cell it crossed lights up, and the trail has no gaps.
+      const fromX = Number.isNaN(state.trailX) ? wx : state.trailX;
+      const fromY = Number.isNaN(state.trailY) ? wy : state.trailY;
+      const steps = Math.min(240, Math.max(1, Math.ceil(Math.hypot(wx - fromX, wy - fromY) / (Math.min(layout.stepX, layout.stepY) * 0.5))));
+      for (let k = 1; k <= steps; k++) {
+        const t = k / steps;
+        stamp(fromX + (wx - fromX) * t, fromY + (wy - fromY) * t, 1 - t);
       }
+      state.trailX = wx;
+      state.trailY = wy;
     };
 
     const cascadeAt = (s: Settings, x: number, y: number) => {
@@ -759,6 +782,8 @@ export default function ShapeGrid({
         state.spotY = point[1];
         state.spotVX = 0;
         state.spotVY = 0;
+        state.trailX = NaN; // a fresh entry starts a new trail, not a line from where it left
+        state.trailY = NaN;
       }
       state.inside = point !== null;
       if (point) {
