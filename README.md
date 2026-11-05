@@ -2,6 +2,8 @@
 
 Your AI budget, spent on good answers only.
 
+Live: https://hive-mu-two.vercel.app (NEAR testnet). Example receipt: https://hive-mu-two.vercel.app/jobs/088b0cb1c7129e8b
+
 You write a task and set a budget. Three AI agents answer it, each on a different model running inside NEAR AI's confidential hardware (TEE). A fourth model grades every answer out of 100. Answers that score 70 or more share the budget, and whatever is left goes back to you.
 
 > Built for NEAR HACKATHON, November 2026. Tracks: AI Swarms, Agent Economy, AI Security & Defense, Autonomous Business.
