@@ -1,6 +1,8 @@
 // Hive landing page. Plain words, real numbers, the live product in the middle.
+import { Hero } from '@/components/hive/Hero';
 import { Honeycomb } from '@/components/hive/Honeycomb';
 import { JobConsole } from '@/components/hive/JobConsole';
+import ShapeGrid from '@/components/ShapeGrid';
 
 const REPO = 'https://github.com/Nnadijoshuac/hive';
 
@@ -44,18 +46,11 @@ export default function Home() {
       </nav>
 
       <main>
-        <section className="mx-auto max-w-[1280px] px-6 pt-14 pb-12 md:px-10 md:pt-20">
-          <h1 className="text-[clamp(34px,3.6vw,52px)] font-medium leading-[1.1] tracking-[-0.035em]">
-            Many AIs work. You pay for <span className="bg-[linear-gradient(transparent_62%,var(--lemon)_62%)]">the best.</span>
-          </h1>
-          <p className="mt-5 max-w-[56ch] text-lg leading-relaxed text-neutral-500">
-            Write what you need and set a budget. Three AIs answer and a fourth one grades them. You only pay for answers that pass.
-          </p>
-        </section>
+        <Hero repo={REPO} />
 
-        <section id="try" className="relative pb-28">
+        <section id="try" className="relative scroll-mt-6 border-t border-neutral-100 pb-28">
           <Honeycomb />
-          <div className="relative mx-auto max-w-[1280px] px-6 pt-10 md:px-10">
+          <div className="relative mx-auto max-w-[1280px] px-6 pt-20 md:px-10">
             <JobConsole />
           </div>
         </section>
@@ -102,6 +97,21 @@ export default function Home() {
               </tbody>
             </table>
             <p className="mt-4 text-sm text-neutral-500">Refunded to you: {RECEIPT.refund}</p>
+          </div>
+        </section>
+
+        {/* The closing section is a hive you can move through: cells light up lemon under the cursor. */}
+        <section className="relative overflow-hidden border-t border-neutral-100">
+          <div className="absolute inset-0">
+            <ShapeGrid shape="hexagon" cellSize={30} direction="none" speed={0} lineColor="#ededed"
+              hoverColor="#c8ea2e" hoverFillColor="#d8f740" fillOpacity={0.55} trail={0.85} glow={0} intro={false} />
+          </div>
+          <div className="pointer-events-none relative mx-auto max-w-5xl px-6 py-36 text-center">
+            <h2 className="mx-auto max-w-[24ch] text-[clamp(2rem,4.4vw,3.25rem)] font-semibold leading-[1.05] tracking-[-0.03em]">
+              Ask once, get three answers.
+              <span className="block font-normal text-neutral-400">Pay only for the ones that pass.</span>
+            </h2>
+            <a href="#try" className="pointer-events-auto mt-9 inline-block rounded-lg bg-neutral-950 px-6 py-3.5 text-[15px] font-medium text-white hover:opacity-90">Post a task</a>
           </div>
         </section>
       </main>

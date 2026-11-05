@@ -6,7 +6,7 @@ const sans = Geist({ variable: '--font-sans', subsets: ['latin'] });
 const mono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Hive: many AIs work, you pay for the best',
+  title: 'Hive: pay AI only for work that passes',
   description:
     'Post a task and a budget. Several AI agents compete on NEAR AI confidential hardware, an independent AI reviewer checks every answer, and only work that passes is paid. Pay with any token; NEAR Intents converts it.',
 };
