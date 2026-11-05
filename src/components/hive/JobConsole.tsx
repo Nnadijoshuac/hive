@@ -74,7 +74,7 @@ export function JobConsole() {
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 border-t border-neutral-100 px-6 py-4 text-sm text-neutral-500 md:px-8">
-        {phase === 'error' && <span>Something went wrong: {error}</span>}
+        {phase === 'error' && <span>{error}</span>}
         {phase === 'idle' && <span>Takes about a minute. The example task is ready to go.</span>}
         {phase === 'running' && <span>Personal details removed. Three AIs are working on it now…</span>}
         {phase === 'done' && result && (

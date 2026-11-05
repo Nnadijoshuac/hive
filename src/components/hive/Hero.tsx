@@ -3,12 +3,17 @@ import { BudgetSplit } from '@/components/hive/BudgetSplit';
 export function Hero({ repo }: { repo: string }) {
   return (
     <section className="mx-auto max-w-[1280px] px-6 pt-16 pb-24 text-center md:px-10 md:pt-24">
-      <h1 className="settle mx-auto max-w-[16ch] text-[clamp(2.4rem,5vw,3.8rem)] font-semibold leading-[1.04] tracking-[-0.035em]">
-        Bad AI answers cost you <span className="bg-[linear-gradient(transparent_64%,var(--lemon)_64%)]">nothing.</span>
+      <h1 className="settle mx-auto max-w-[18ch] text-[clamp(2.4rem,5vw,3.8rem)] font-semibold leading-[1.06] tracking-[-0.035em]">
+        Your AI budget, spent on{' '}
+        <span className="relative whitespace-nowrap">
+          good answers only.
+          {/* A thin line drawn under the key words once the headline has landed. */}
+          <span aria-hidden className="draw-line absolute right-[0.3em] -bottom-[0.06em] left-0 h-[0.07em] rounded-full bg-lemon" />
+        </span>
       </h1>
 
-      <p className="settle mx-auto mt-5 max-w-[44ch] text-[17px] leading-relaxed text-neutral-500" style={{ animationDelay: '200ms' }}>
-        Three AIs answer your task and a fourth grades them. You only pay for the answers that pass.
+      <p className="settle mx-auto mt-6 max-w-[44ch] text-[17px] leading-relaxed text-neutral-500" style={{ animationDelay: '200ms' }}>
+        Three AIs answer your task and a fourth grades them. Answers that fail are not paid.
       </p>
 
       <div className="settle mt-8 flex items-center justify-center gap-3" style={{ animationDelay: '350ms' }}>

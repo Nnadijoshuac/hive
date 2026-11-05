@@ -1,6 +1,6 @@
 # Hive
 
-Bad AI answers cost you nothing.
+Your AI budget, spent on good answers only.
 
 You write a task and set a budget. Three AI agents answer it, each on a different model running inside NEAR AI's confidential hardware (TEE). A fourth model grades every answer out of 100. Answers that score 70 or more share the budget, and whatever is left goes back to you.
 

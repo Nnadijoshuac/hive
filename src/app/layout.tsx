@@ -6,7 +6,7 @@ const sans = Geist({ variable: '--font-sans', subsets: ['latin'] });
 const mono = Geist_Mono({ variable: '--font-geist-mono', subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Hive: bad AI answers cost you nothing',
+  title: 'Hive: your AI budget, spent on good answers only',
   description:
     'Post a task and a budget. Three AIs answer on NEAR AI confidential hardware and a fourth grades them. Answers that score 70 or more share the budget and the rest comes back to you.',
 };
