@@ -6,6 +6,7 @@ import { Suspense } from 'react';
 import { CopyLink } from '@/components/hive/CopyLink';
 import { formatUsd, plainText } from '@/lib/format';
 import { getJob, type Receipt } from '@/lib/jobs/store';
+import { CONTRACT, EXPLORER, NEAR_PER_USD } from '@/lib/near/chain';
 import { PASS_SCORE, type Entry } from '@/lib/swarm/engine';
 import { cn } from '@/lib/utils';
 
@@ -56,6 +57,8 @@ async function ReceiptView({ params }: { params: Promise<{ id: string }> }) {
 
       <MoneyBar job={job} />
 
+      <OnChain job={job} />
+
       <section className="mt-16 border-t border-neutral-200">
         {job.entries.map((entry) => <AnswerRow key={entry.agent.id} entry={entry} />)}
       </section>
@@ -97,6 +100,37 @@ function MoneyBar({ job }: { job: Receipt }) {
           </div>
         )}
       </div>
+    </section>
+  );
+}
+
+/** The job's record in the Hive contract on NEAR testnet, one link per transaction. */
+function OnChain({ job }: { job: Receipt }) {
+  if (!job.chain) {
+    return job.chainError ? (
+      <p className="mt-12 text-sm text-neutral-500">This job was not recorded on NEAR: {job.chainError}</p>
+    ) : null;
+  }
+  return (
+    <section className="mt-12">
+      <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
+        <p className="label-mono text-neutral-400">Settled on NEAR testnet · job #{job.chain.jobId} in {CONTRACT}</p>
+        <p className="text-sm text-neutral-500">Held as test NEAR at {NEAR_PER_USD} NEAR per $1</p>
+      </div>
+      <ol className="border-t border-neutral-200">
+        {job.chain.txs.map((tx, i) => (
+          <li key={tx.hash} className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-200 py-3 text-sm">
+            <span className="flex items-center gap-3">
+              <span className="font-mono text-xs text-neutral-400">{i + 1}</span>
+              <span className="text-neutral-800">{tx.step}</span>
+            </span>
+            <a href={`${EXPLORER}${tx.hash}`} target="_blank" rel="noopener"
+              className="font-mono text-xs text-neutral-500 underline decoration-neutral-300 underline-offset-4 hover:text-neutral-950">
+              {tx.hash.slice(0, 10)}…
+            </a>
+          </li>
+        ))}
+      </ol>
     </section>
   );
 }

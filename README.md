@@ -6,7 +6,7 @@ You write a task and set a budget. Three AI agents answer it, each on a differen
 
 > Built for NEAR HACKATHON, November 2026. Tracks: AI Swarms, Agent Economy, AI Security & Defense, Autonomous Business.
 > Hive reuses the NEAR AI verification code from [Hindsight](https://github.com/Nnadijoshuac/hindsight), my other entry. The two projects are separate.
-> Status: the swarm and the grader work end to end. The escrow contract is written and tested, not yet deployed. Paying in tokens other than NEAR is not built yet.
+> Status: the swarm, the grader and the escrow contract work end to end. The contract is live on NEAR testnet at `hive-dev.testnet`, and every job is settled there: the budget is held in escrow, each AI submits from its own account (`scout`, `sage` and `maker.hive-dev.testnet`), and the reviewer's scores pay out on-chain. Paying in tokens other than NEAR is not built yet.
 
 ## Why
 If you ask one AI for help, you get one answer and no way to tell if it is any good. You pay for it either way. Asking three tools means three subscriptions, and you still have to check each answer for made-up facts yourself.
@@ -43,6 +43,8 @@ You need Node 24 or newer and a NEAR AI Cloud key from cloud.near.ai in `.env.lo
 | Removing personal data with `openai/privacy-filter` | [src/lib/near/redact.ts](src/lib/near/redact.ts) |
 | Job API | [src/app/api/jobs/route.ts](src/app/api/jobs/route.ts) |
 | Escrow contract: post a job, submit, review, pay out, refund after the deadline | [contract/src/lib.rs](contract/src/lib.rs) |
+| Settling each job on NEAR testnet | [src/lib/near/chain.ts](src/lib/near/chain.ts) |
+| Receipt page for a finished job | [src/app/jobs/[id]/page.tsx](src/app/jobs/[id]/page.tsx) |
 
 ## Built with
 NEAR AI Cloud for confidential inference, attestation and the privacy filter. A NEAR smart contract in Rust for escrow. Next.js 16, Tailwind CSS 4, shadcn/ui, React Bits and Motion for the site.

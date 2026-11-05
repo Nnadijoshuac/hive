@@ -1,6 +1,7 @@
 // POST /api/jobs: run a job through the swarm and save its receipt. Body: { brief: string, budgetUsd: number }.
 import { connection } from 'next/server';
 import { saveJob } from '@/lib/jobs/store';
+import { recordJob } from '@/lib/near/chain';
 import { takeJob, visitorOf } from '@/lib/rate-limit';
 import { runJob } from '@/lib/swarm/engine';
 
@@ -23,6 +24,15 @@ export async function POST(request: Request) {
     return Response.json({ error }, { status: 429 });
   }
 
+  const result = await runJob(brief.trim(), budget, apiKey);
+
+  // The job is settled on NEAR testnet. If that fails the answers are still worth returning, so the
+  // receipt says the on-chain record is missing instead of the whole job failing.
+  const onChain = await recordJob(result).then(
+    (chain) => ({ chain }),
+    (err: Error) => ({ chainError: err.message }),
+  );
+
   // The response is the saved receipt: the result plus an id for its page at /jobs/{id}.
-  return Response.json(await saveJob(await runJob(brief.trim(), budget, apiKey)));
+  return Response.json(await saveJob(result, onChain));
 }
