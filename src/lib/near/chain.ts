@@ -57,15 +57,16 @@ async function agentAccount(agentId: string, name: string) {
 }
 
 /** Records a finished job on-chain. Scores are only sent for answers whose answer and grade were both verified. */
-export async function recordJob(result: JobResult): Promise<ChainRecord> {
+export async function recordJob(result: JobResult, onTx: (tx: ChainRecord['txs'][number]) => void = () => {}): Promise<ChainRecord> {
   const hive = await signer(CONTRACT);
   const escrowNear = ((result.budget / 100) * NEAR_PER_USD).toFixed(4) as `${number}`;
   const deadline = (Date.now() + 60 * 60 * 1000) * 1_000_000; // one hour from now, in nanoseconds
   const txs: ChainRecord['txs'] = [];
+  const push = (tx: ChainRecord['txs'][number]) => { txs.push(tx); onTx(tx); };
 
   const posted = await call(hive, 'post_job', { brief_hash: sha256(result.redactedBrief), deadline }, escrowNear);
   const jobId = posted.value as number;
-  txs.push({ step: `Budget held in escrow (${escrowNear} NEAR)`, hash: posted.hash });
+  push({ step: `Budget held in escrow (${escrowNear} NEAR)`, hash: posted.hash });
 
   const submitted = result.entries.filter((e) => e.answer);
   for (const entry of submitted) {
@@ -75,7 +76,7 @@ export async function recordJob(result: JobResult): Promise<ChainRecord> {
       answer_hash: sha256(entry.answer),
       attestation_ref: sha256(`${entry.agent.model}:${entry.proof.signer}`),
     });
-    txs.push({ step: `${entry.agent.name} submitted its answer`, hash: sent.hash });
+    push({ step: `${entry.agent.name} submitted its answer`, hash: sent.hash });
   }
 
   const scores = submitted.map((e) => ({
@@ -85,7 +86,7 @@ export async function recordJob(result: JobResult): Promise<ChainRecord> {
   }));
   const reviewRef = sha256(JSON.stringify(submitted.map((e) => [e.agent.id, e.review.score, e.review.verdict, e.review.proof.signer])));
   const reviewed = await call(hive, 'review', { job_id: jobId, scores, review_ref: reviewRef }, '0', '100');
-  txs.push({ step: 'Reviewer posted the scores and the contract paid out', hash: reviewed.hash });
+  push({ step: 'Reviewer posted the scores and the contract paid out', hash: reviewed.hash });
 
   return { jobId, escrowNear, txs };
 }

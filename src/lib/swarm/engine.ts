@@ -15,6 +15,12 @@ export interface Proof { verified: boolean; signer: string; reason?: string }
 export interface Entry { agent: AgentProfile; answer: string; proof: Proof; review: Review; payout: number; error?: string }
 export interface JobResult { brief: string; redactedBrief: string; budget: number; entries: Entry[]; refunded: number }
 
+/** What happens during a job, in order, so a client can show it live. */
+export type JobEvent =
+  | { type: 'redacted'; redactedBrief: string }
+  | { type: 'answer'; agentId: string; answer: string; proof: Proof; error?: string }
+  | { type: 'review'; agentId: string; review: Review };
+
 const proofOf = (c: PrivateCompletion): Proof => ({ verified: c.verified, signer: c.signer, reason: c.reason });
 
 async function work(agent: AgentProfile, brief: string, apiKey: string) {
@@ -44,17 +50,24 @@ export function settle(budget: number, scores: { passed: boolean; score: number 
   return { payouts, refunded: budget - payouts.reduce((a, b) => a + b, 0) };
 }
 
-/** Run a job end to end. `budget` is in cents. */
-export async function runJob(brief: string, budget: number, apiKey: string): Promise<JobResult> {
+/** Run a job end to end. `budget` is in cents. `onEvent` hears each step as it happens. */
+export async function runJob(brief: string, budget: number, apiKey: string, onEvent: (e: JobEvent) => void = () => {}): Promise<JobResult> {
   const [{ text: redactedBrief }] = await redact([brief], apiKey);
+  onEvent({ type: 'redacted', redactedBrief });
 
   const attempts = await Promise.all(AGENTS.map(async (agent) => {
     try {
       const { answer, proof } = await work(agent, redactedBrief, apiKey);
-      return { agent, answer, proof, review: await review(redactedBrief, answer, apiKey) };
+      onEvent({ type: 'answer', agentId: agent.id, answer, proof });
+      const graded = await review(redactedBrief, answer, apiKey);
+      onEvent({ type: 'review', agentId: agent.id, review: graded });
+      return { agent, answer, proof, review: graded };
     } catch (err) {
       const failed: Proof = { verified: false, signer: '', reason: 'agent did not finish' };
-      return { agent, answer: '', proof: failed, review: { score: 0, passed: false, verdict: 'Agent failed to deliver.', proof: failed }, error: (err as Error).message };
+      const graded: Review = { score: 0, passed: false, verdict: 'Agent failed to deliver.', proof: failed };
+      onEvent({ type: 'answer', agentId: agent.id, answer: '', proof: failed, error: (err as Error).message });
+      onEvent({ type: 'review', agentId: agent.id, review: graded });
+      return { agent, answer: '', proof: failed, review: graded, error: (err as Error).message };
     }
   }));
 

@@ -1,4 +1,5 @@
-// POST /api/jobs: run a job through the swarm and save its receipt. Body: { brief: string, budgetUsd: number }.
+// POST /api/jobs: run a job through the swarm, settle it on NEAR and save its receipt, streaming each step.
+// Body: { brief: string, budgetUsd: number }.
 import { connection } from 'next/server';
 import { saveJob } from '@/lib/jobs/store';
 import { recordJob } from '@/lib/near/chain';
@@ -24,15 +25,29 @@ export async function POST(request: Request) {
     return Response.json({ error }, { status: 429 });
   }
 
-  const result = await runJob(brief.trim(), budget, apiKey);
+  // The job streams as newline-delimited JSON, one event per line, so the console can show each step as
+  // it happens. The last line is { type: 'done', receipt } or { type: 'error', error }.
+  const encoder = new TextEncoder();
+  const stream = new ReadableStream({
+    async start(controller) {
+      const send = (event: object) => controller.enqueue(encoder.encode(`${JSON.stringify(event)}\n`));
+      try {
+        const result = await runJob(brief.trim(), budget, apiKey, send);
+        send({ type: 'settled', entries: result.entries.map((e) => ({ agentId: e.agent.id, passed: e.review.passed, payout: e.payout })), refunded: result.refunded });
 
-  // The job is settled on NEAR testnet. If that fails the answers are still worth returning, so the
-  // receipt says the on-chain record is missing instead of the whole job failing.
-  const onChain = await recordJob(result).then(
-    (chain) => ({ chain }),
-    (err: Error) => ({ chainError: err.message }),
-  );
+        // The job is settled on NEAR testnet. If that fails the answers are still worth returning, so the
+        // receipt says the on-chain record is missing instead of the whole job failing.
+        const onChain = await recordJob(result, (tx) => send({ type: 'tx', ...tx })).then(
+          (chain) => ({ chain }),
+          (err: Error) => ({ chainError: err.message }),
+        );
+        send({ type: 'done', receipt: await saveJob(result, onChain) });
+      } catch (err) {
+        send({ type: 'error', error: (err as Error).message });
+      }
+      controller.close();
+    },
+  });
 
-  // The response is the saved receipt: the result plus an id for its page at /jobs/{id}.
-  return Response.json(await saveJob(result, onChain));
+  return new Response(stream, { headers: { 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-store' } });
 }
