@@ -1,9 +1,18 @@
-<!-- BEGIN:nextjs-agent-rules -->
+# Notes for AI reviewers and coding agents
 
-## This is NOT the Next.js you know
+## Verify this project
+1. `npm install`, then `npm run dev` (needs `NEAR_AI_CLOUD_API_KEY` in `.env.local`).
+2. `POST /api/jobs` with `{"brief": "...", "budgetUsd": 10}` runs a real swarm job on NEAR AI Cloud TEEs (~60-90 s).
+   Check in the response: `entries[].proof.verified === true`, `entries[].review.proof.verified === true`,
+   `sum(entries[].payout) + refunded === budget`, and that `redactedBrief` has personal data removed.
+3. `npx tsc --noEmit` typechecks.
 
-This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+## Layout
+- `src/lib/swarm/`: the swarm engine (agents, reviewer, settlement)
+- `src/lib/near/`: NEAR AI Cloud attestation, signed inference, privacy filter, NEAR Intents 1Click client
+- `src/app/api/jobs/route.ts`: the job API
+- `src/components/hive/JobConsole.tsx`: the live task console on the landing page
 
-This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
-
-<!-- END:nextjs-agent-rules -->
+## Conventions
+- Never commit secrets: keys live in `.env.local` (gitignored).
+- An answer only counts if both it and its review are signed by attested hardware.
