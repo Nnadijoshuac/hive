@@ -4,7 +4,8 @@
 import { useState } from 'react';
 import { motion } from 'motion/react';
 import { AGENTS } from '@/lib/swarm/agents';
-import type { Entry, JobResult } from '@/lib/swarm/engine';
+import type { Receipt } from '@/lib/jobs/store';
+import type { Entry } from '@/lib/swarm/engine';
 import { formatUsd, plainText } from '@/lib/format';
 import { cn } from '@/lib/utils';
 
@@ -16,7 +17,7 @@ export function JobConsole() {
   const [brief, setBrief] = useState(EXAMPLE);
   const [budget, setBudget] = useState(10);
   const [phase, setPhase] = useState<Phase>('idle');
-  const [result, setResult] = useState<JobResult>();
+  const [result, setResult] = useState<Receipt>();
   const [error, setError] = useState('');
 
   async function run() {
@@ -80,7 +81,9 @@ export function JobConsole() {
         {phase === 'done' && result && (
           <>
             <span>Paid <b className="text-neutral-950">{formatUsd(result.budget - result.refunded)}</b> for work that passed{result.refunded > 0 && <> · refunded {formatUsd(result.refunded)}</>}</span>
-            <span className="label-mono text-neutral-400">Each answer and grade is signed</span>
+            <a href={`/jobs/${result.id}`} className="font-medium text-neutral-950 underline decoration-lemon decoration-2 underline-offset-4">
+              Open the receipt
+            </a>
           </>
         )}
       </div>
