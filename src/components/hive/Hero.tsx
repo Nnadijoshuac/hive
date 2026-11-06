@@ -1,28 +1,35 @@
-import { BudgetSplit } from '@/components/hive/BudgetSplit';
+'use client';
+// One message, nothing competing with it: the headline, a sub-line and two buttons, with the loop of AIs
+// moving quietly around them. The loop reads the copy's box so its dots stay clear of the words.
+import { useRef } from 'react';
+import { HeroLoop } from '@/components/hive/HeroLoop';
+import { PencilLine } from '@/components/hive/PencilLine';
 
 export function Hero({ repo }: { repo: string }) {
+  const copyRef = useRef<HTMLDivElement>(null);
   return (
-    <section className="mx-auto max-w-[1280px] px-6 pt-16 pb-24 text-center md:px-10 md:pt-24">
-      <h1 className="settle mx-auto max-w-[16ch] text-[clamp(2.2rem,6vw,4.75rem)] font-semibold leading-[1.06] tracking-[-0.035em]">
-        <span className="block">Pay only for</span>
-        <span className="relative whitespace-nowrap">
-          verified answers.
-          {/* A thin line drawn under the key words once the headline has landed. */}
-          <span aria-hidden className="draw-line absolute right-[0.3em] -bottom-[0.06em] left-0 h-[0.07em] rounded-full bg-lemon" />
-        </span>
-      </h1>
+    <section className="relative overflow-hidden">
+      <HeroLoop clearRef={copyRef} />
 
-      <p className="settle mx-auto mt-8 max-w-[44ch] text-[17px] leading-relaxed text-neutral-500" style={{ animationDelay: '200ms' }}>
-        Three AIs answer your task and a fourth grades them. Answers that fail cost you nothing.
-      </p>
+      <div className="relative mx-auto max-w-[1280px] px-6 pt-20 pb-[clamp(22rem,42vw,38rem)] text-center md:px-10 md:pt-32">
+        <div ref={copyRef} className="mx-auto w-fit">
+          <h1 className="settle mx-auto max-w-[16ch] text-[clamp(2.2rem,6vw,4.75rem)] font-semibold leading-[1.06] tracking-[-0.035em]">
+            <span className="block">Pay only for</span>
+            <span className="relative whitespace-nowrap">
+              verified answers.
+              <PencilLine />
+            </span>
+          </h1>
 
-      <div className="settle mt-8 flex items-center justify-center gap-3" style={{ animationDelay: '350ms' }}>
-        <a href="#try" className="rounded-lg bg-lemon px-6 py-3.5 text-[15px] font-medium text-neutral-950 hover:brightness-95">Post a task</a>
-        <a href={repo} target="_blank" rel="noopener" className="rounded-lg px-5 py-3.5 text-[15px] font-medium text-neutral-600 hover:text-neutral-950">View source</a>
-      </div>
+          <p className="settle mx-auto mt-10 max-w-[44ch] text-[17px] leading-relaxed text-neutral-500" style={{ animationDelay: '200ms' }}>
+            Three AIs answer your task and a fourth grades them. Answers that fail cost you nothing.
+          </p>
 
-      <div className="settle mx-auto mt-16 max-w-[860px]" style={{ animationDelay: '500ms' }}>
-        <BudgetSplit />
+          <div className="settle mt-8 flex items-center justify-center gap-3" style={{ animationDelay: '350ms' }}>
+            <a href="#try" className="rounded-lg bg-lemon px-6 py-3.5 text-[15px] font-medium text-neutral-950 hover:brightness-95">Post a task</a>
+            <a href={repo} target="_blank" rel="noopener" className="rounded-lg bg-white/80 px-5 py-3.5 text-[15px] font-medium text-neutral-600 hover:text-neutral-950">View source</a>
+          </div>
+        </div>
       </div>
     </section>
   );
