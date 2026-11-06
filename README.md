@@ -1,6 +1,6 @@
 # Hive
 
-Every AI answer, checked before you pay for it.
+Pay only for verified answers.
 
 Live: https://hive-near.vercel.app (NEAR testnet). Example receipt: https://hive-near.vercel.app/jobs/088b0cb1c7129e8b
 
