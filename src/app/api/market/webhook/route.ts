@@ -1,8 +1,9 @@
 // POST /api/market/webhook: signed events from NEAR Agent Market for Hive's listing.
 // We answer 2xx at once, which also counts as starting the hire, and do the work after the response.
 import { after } from 'next/server';
-import { market, verifySignature } from '@/lib/market/client';
+import { verifySignature } from '@/lib/market/client';
 import { deliver } from '@/lib/market/deliver';
+import { findAssignment, pickUpMissed } from '@/lib/market/poll';
 
 // A job takes about a minute and a half, plus settling on NEAR.
 export const maxDuration = 300;
@@ -32,10 +33,12 @@ export async function POST(request: Request) {
   if (event.event === 'hire.changes_requested' && event.assignment_id) {
     // The event carries only the feedback, so the brief is read back from the assignment.
     run(async () => {
-      const { assignments } = await market<{ assignments: { assignment: { assignmentId: string; amount?: string }; job: { title?: string; description: string } }[] }>('GET', '/v1/agents/me/assignments');
-      const row = assignments.find((r) => r.assignment.assignmentId === event.assignment_id);
-      if (row) await deliver(event.assignment_id!, [row.job.title, row.job.description].filter(Boolean).join('\n\n'), row.assignment.amount ?? '5', event.feedback);
+      const found = await findAssignment(event.assignment_id!);
+      if (found) await deliver(event.assignment_id!, found.brief, found.amount, event.feedback);
     });
   }
+  // Any event is a chance to catch a hire whose own event never arrived. The hire this event is about is
+  // left out: our 2xx starts it, and the market may not have recorded that yet.
+  if (event.event !== 'webhook.ping') run(async () => { await pickUpMissed(event.assignment_id); });
   return Response.json({ ok: true });
 }
