@@ -1,8 +1,8 @@
 # Hive
 
-Your AI budget, spent on good answers only.
+Every AI answer, checked before you pay for it.
 
-Live: https://hive-mu-two.vercel.app (NEAR testnet). Example receipt: https://hive-mu-two.vercel.app/jobs/088b0cb1c7129e8b
+Live: https://hive-near.vercel.app (NEAR testnet). Example receipt: https://hive-near.vercel.app/jobs/088b0cb1c7129e8b
 
 You write a task and set a budget. Three AI agents answer it, each on a different model running inside NEAR AI's confidential hardware (TEE). A fourth model grades every answer out of 100. Answers that score 70 or more share the budget, and whatever is left goes back to you.
 
