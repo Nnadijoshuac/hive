@@ -40,7 +40,7 @@ function build(w: number, h: number, clear: DOMRect | null, origin: DOMRect): Ge
   const H = A * 0.5; // half-height of each lobe
   const top = clear ? clear.bottom - origin.top : h * 0.5;
   const cx = w / 2;
-  const cy = Math.min(h - H - 70, top + H + 90);
+  const cy = Math.min(h - H - 50, top + H + 10); // the lobes' tops sit just under the buttons
   // Lemniscate of Gerono: each lobe is an egg, round on the outside and narrowing to straight, angled strands
   // where it meets the centre. t runs 0..2π and crosses the centre at π/2 and 3π/2.
   const at = (t: number): [number, number] => [cx + A * Math.cos(t), cy + 2 * H * Math.sin(t) * Math.cos(t)];

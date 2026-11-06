@@ -11,7 +11,7 @@ export function Hero({ repo }: { repo: string }) {
     <section className="relative overflow-hidden">
       <HeroLoop clearRef={copyRef} />
 
-      <div className="relative mx-auto max-w-[1280px] px-6 pt-20 pb-[clamp(22rem,42vw,38rem)] text-center md:px-10 md:pt-32">
+      <div className="relative mx-auto max-w-[1280px] px-6 pt-20 pb-[clamp(19rem,37vw,34rem)] text-center md:px-10 md:pt-32">
         <div ref={copyRef} className="mx-auto w-fit">
           <h1 className="settle mx-auto max-w-[16ch] text-[clamp(2.2rem,6vw,4.75rem)] font-semibold leading-[1.06] tracking-[-0.035em]">
             <span className="block">Pay only for</span>
