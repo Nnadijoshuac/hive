@@ -52,7 +52,13 @@ export function settle(budget: number, scores: { passed: boolean; score: number 
 
 /** Run a job end to end. `budget` is in cents. `onEvent` hears each step as it happens. */
 export async function runJob(brief: string, budget: number, apiKey: string, onEvent: (e: JobEvent) => void = () => {}): Promise<JobResult> {
-  const [{ text: redactedBrief }] = await redact([brief], apiKey);
+  // The filter works line by line, so a brief with line breaks goes in as its lines. Blank lines stay out of
+  // the request and are put back afterwards, so the brief keeps its shape.
+  const lines = brief.split('\n');
+  const filled = lines.flatMap((line, i) => (line.trim() ? [i] : []));
+  const cleaned = await redact(filled.map((i) => lines[i]), apiKey);
+  filled.forEach((lineIndex, k) => { lines[lineIndex] = cleaned[k].text; });
+  const redactedBrief = lines.join('\n');
   onEvent({ type: 'redacted', redactedBrief });
 
   const attempts = await Promise.all(AGENTS.map(async (agent) => {
