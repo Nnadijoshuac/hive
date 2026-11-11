@@ -3,11 +3,12 @@
 Pay only for verified answers.
 
 Live: https://hive-near.vercel.app (NEAR testnet). Example receipt: https://hive-near.vercel.app/jobs/088b0cb1c7129e8b
+Hire it on NEAR Agent Market: [@hive](https://market.near.ai/@hive) · Demo video (86 s): [docs/hive-launch.mp4](docs/hive-launch.mp4)
 
 You write a task and set a budget. Three AI agents answer it, each on a different model running inside NEAR AI's confidential hardware (TEE). A fourth model grades every answer out of 100. Answers that score 70 or more share the budget, and whatever is left goes back to you.
 
 > Built for NEAR HACKATHON, November 2026. Tracks: AI Swarms, Agent Economy, AI Security & Defense, Autonomous Business.
-> Hive reuses the NEAR AI verification code from [Hindsight](https://github.com/Nnadijoshuac/hindsight), my other entry. The two projects are separate.
+> My other entry is [Hindsight](https://github.com/Nnadijoshuac/hindsight) (live at https://hindsight-near.vercel.app), a private cashflow forecaster. Hive reuses its NEAR AI verification code; the two projects are otherwise separate.
 > Status: the swarm, the grader and the escrow contract work end to end. The contract is live on NEAR testnet at `hive-dev.testnet`, and every job is settled there: the budget is held in escrow, each AI submits from its own account (`scout`, `sage` and `maker.hive-dev.testnet`), and the reviewer's scores pay out on-chain. Paying in tokens other than NEAR is not built yet.
 
 ## Why
@@ -35,6 +36,9 @@ You need Node 24 or newer and a NEAR AI Cloud key from cloud.near.ai in `.env.lo
 | 3 | `curl -X POST localhost:3000/api/jobs -H 'Content-Type: application/json' -d '{"brief":"…","budgetUsd":10}'` | JSON with `redactedBrief`, and for each agent `answer`, `proof.verified`, `review.score`, `review.passed`, `review.verdict` and `payout`, plus `refunded` |
 | 4 | `cd contract && cargo test` | 12 contract tests pass (on Windows set `AWS_LC_SYS_PREBUILT_NASM=1` first) |
 
+## Hire it on NEAR Agent Market
+Hive is listed on [NEAR Agent Market](https://market.near.ai) as [`@hive`](https://market.near.ai/@hive) at $5 a call. A hire reaches Hive through a signed webhook ([src/app/api/market/webhook/route.ts](src/app/api/market/webhook/route.ts)), runs the same swarm, and delivers the passing answers, the grade table and a receipt link. A daily job picks up any hire the webhook missed ([src/lib/market/poll.ts](src/lib/market/poll.ts)).
+
 ## Where things are
 | What | Code |
 |---|---|
@@ -52,6 +56,11 @@ You need Node 24 or newer and a NEAR AI Cloud key from cloud.near.ai in `.env.lo
 NEAR AI Cloud for confidential inference, attestation and the privacy filter. A NEAR smart contract in Rust for escrow. Next.js 16, Tailwind CSS 4, shadcn/ui, React Bits and Motion for the site.
 
 `src/lib/near/*` was written for Hindsight during this hackathon and copied here. It uses `@phala/dcap-qvl` for Intel DCAP and `@noble/curves` for signature recovery. Parts of the code were written with Claude Code.
+
+Demo video: made with HyperFrames. Music: "The Corporate Upbeat" by Soundrider/Dope, CC BY 3.0 (Jamendo). Sound effects from Freesound via Openverse.
+
+## Built during the hackathon
+Every commit in this repo was made during NEAR HACKATHON (first commit Nov 5 2026), so there is no pre-hackathon baseline. The tag `hackathon-submission` marks the submitted state.
 
 ## License
 MIT. See [LICENSE](LICENSE).
